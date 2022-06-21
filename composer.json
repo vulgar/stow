@@ -1,0 +1,26 @@
+{
+    "name": "vulgar/laravel-basket",
+    "description": "This unofficial laravel package allows for the addition of any model to an instancable \"Cart\", \"Quote\" or other \"Basket\".",
+    "type": "library",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Vulgar\\LaravelBasket\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Vugar",
+            "email": "admin@matthewnewport.com"
+        }
+    ],
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Vulgar\\LaravelBasket\\Providers\\BasketProvider"
+            ]
+        }
+    },
+    "minimum-stability": "dev",
+    "require": {}
+}
