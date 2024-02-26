@@ -3,7 +3,7 @@
 namespace Vulgar\LaravelBasket\Traits;
 
 trait Basketable{
-    public function basket(){
-        return $this->morph();
+    public function basketItem(){
+        return $this->morphTo();
     }
 }

@@ -8,10 +8,17 @@
             "Vulgar\\LaravelBasket\\": "src/"
         }
     },
+    "autoload-dev": {
+        "psr-4": {
+            "Vulgar\\LaravelBasket\\Tests\\": "tests/"
+        }
+    },
     "authors": [
         {
-            "name": "Vugar",
-            "email": "admin@matthewnewport.com"
+            "name": "Vulgar",
+            "email": "admin@matthewnewport.com",
+            "homepage": "https://www.matthewnewport.com",
+            "role": "Developer"
         }
     ],
     "extra": {
@@ -22,5 +29,12 @@
         }
     },
     "minimum-stability": "dev",
-    "require": {}
+    "require-dev": {
+        "orchestra/testbench": "8.0.x-dev"
+    },
+    "scripts": {
+        "post-autoload-dump": [
+            "@php ./vendor/bin/testbench package:discover --ansi"
+        ]
+    }
 }

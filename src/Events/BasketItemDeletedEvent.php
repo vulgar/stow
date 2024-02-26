@@ -6,7 +6,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Foundation\Events\Dispatchable;
 use Vulgar\LaravelBasket\Models\BasketItem;
 
-class BasketItemRemoved
+class BasketItemDeletedEvent
 {
 
     use Dispatchable, SerializesModels;

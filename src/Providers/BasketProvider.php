@@ -20,5 +20,8 @@ class BasketProvider extends ServiceProvider
 
         // Register the migrations for next `php artisan migrate` execution
         $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
+
+        // Register the Event Listeners
+        $this->app->register(EventServiceProvider::class);
     }
 }

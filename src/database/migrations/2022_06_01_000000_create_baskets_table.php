@@ -13,20 +13,11 @@ class CreateBasketsTable extends Migration
      */
     public function up()
     {
-
-        // check for existence of users table, fail if doesn't exist
-        if(!Schema::hasTable('users') || !Schema::hasColumn("users","id")){
-            throw new Exception("You must have a `users` table with an `id` column.");
-        }
-        // check for existence of baskets table, fail if exists
-
         Schema::create('baskets', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->foreignId('user_id')->nullable()->constrained('users');
             $table->string('instance');
             $table->string('slug');
             $table->boolean('locked')->default(false);
-
             $table->timestamps();
             $table->softDeletes();
         });
