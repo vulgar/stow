@@ -32,9 +32,8 @@ class BasketTest extends TestCase
     {
         $stowableObject = new StowableTest();
         $basket = new Basket();
-        dump("test");
         $basket->add($stowableObject);
-        $this->assertEquals(1, $basket->items()->count());
+        $this->assertEquals(1, $basket->basketItems()->count());
     }
 
     /**
@@ -79,7 +78,7 @@ class BasketTest extends TestCase
         Config::set('basket.instances.basket', [$stowableObject::class]);
         $basket = new Basket();
         $basket->add($stowableObject);
-        $this->assertEquals(1, $basket->items()->count());
+        $this->assertEquals(1, $basket->basketItems()->count());
     }
 
     /**
@@ -124,7 +123,7 @@ class BasketTest extends TestCase
         $basket = new Basket();
         $basket->add($stowableObject, options: ['loves' => 'cats']);
         $basket->add($stowableObject, options: ['loves' => 'dogs']);
-        $this->assertEquals(2, $basket->items()->count());
+        $this->assertEquals(2, $basket->basketItems()->count());
     }
 
     /**
@@ -140,11 +139,11 @@ class BasketTest extends TestCase
 
         $basketItem = $basket->add($stowableObject);
         $basket->remove($basketItem);
-        $this->assertEquals(0, $basket->items()->count());
+        $this->assertEquals(0, $basket->basketItems()->count());
 
         $basketItem = $basket->add($stowableObject);
         $basket->remove($basketItem->id);
-        $this->assertEquals(0, $basket->items()->count());
+        $this->assertEquals(0, $basket->basketItems()->count());
     }
 
     /**

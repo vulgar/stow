@@ -16,7 +16,7 @@ class CreateBasketItemsTable extends Migration
         Schema::create('basket_items', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->unsignedBigInteger('basket_id')->constrained('baskets');
-            $table->morphs('stowable');
+            $table->nullableMorphs('stowable');
             $table->integer('quantity')->default(1);
             $table->json('options');
             $table->timestamps();

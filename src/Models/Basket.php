@@ -5,6 +5,7 @@ namespace Vulgar\Stow\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
@@ -63,14 +64,26 @@ class Basket extends Model
     */
 
     /**
-     * Items
+     * Basket Items
      *
      * @return HasMany Basket Items with this basket as their parent
      */
-    public function items(): HasMany
+    public function basketItems(): HasMany
     {
         return $this->hasMany(BasketItem::class);
     }
+
+    /**
+     * Items
+     * The polymorphic stowable items in the basket with their quantities, and options
+     * through the BasketItem pivot model
+     * @return MorphMany polymorphic stowable items in the basket
+     */
+    public function items(): MorphMany
+    {
+        return $this->morphMany(BasketItem::class, 'stowable');
+    }
+
 
     /**
      * Add to basket
