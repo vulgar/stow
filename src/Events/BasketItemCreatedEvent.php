@@ -1,21 +1,19 @@
 <?php
 
-namespace Vulgar\LaravelBasket\Events;
+namespace Vulgar\Stow\Events;
 
-use Illuminate\Queue\SerializesModels;
 use Illuminate\Foundation\Events\Dispatchable;
-use Vulgar\LaravelBasket\Models\BasketItem;
+use Illuminate\Queue\SerializesModels;
+use Vulgar\Stow\Models\BasketItem;
 
 class BasketItemCreatedEvent
 {
-
     use Dispatchable, SerializesModels;
 
-    public $basketItem;
+    public BasketItem $basketItem;
 
     public function __construct(BasketItem $basketItem)
     {
         $this->basketItem = $basketItem;
     }
-
 }

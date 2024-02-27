@@ -1,17 +1,17 @@
 <?php
 
-namespace Vulgar\LaravelBasket\Providers;
+namespace Vulgar\Stow\Providers;
 
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
-use Vulgar\LaravelBasket\Events\BasketDeletingEvent;
-use Vulgar\LaravelBasket\Listeners\BasketDeletingListener;
+use Vulgar\Stow\Events\BasketDeletingEvent;
+use Vulgar\Stow\Listeners\BasketDeletingListener;
 
 class EventServiceProvider extends ServiceProvider
 {
     protected $listen = [
         BasketDeletingEvent::class => [
             BasketDeletingListener::class,
-        ]
+        ],
     ];
 
     /**

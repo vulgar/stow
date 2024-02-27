@@ -1,28 +1,46 @@
 <?php
 
-namespace Vulgar\LaravelBasket\Models;
+namespace Vulgar\Stow\Models;
 
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Model;
-use Vulgar\LaravelBasket\Interfaces\Stowable;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
-use Vulgar\LaravelBasket\Events\BasketCreatedEvent;
-use Vulgar\LaravelBasket\Events\BasketDeletedEvent;
-use Vulgar\LaravelBasket\Events\BasketDeletingEvent;
-use Vulgar\LaravelBasket\Exceptions\UnstowableObjectException;
+use Vulgar\Stow\Events\BasketCreatedEvent;
+use Vulgar\Stow\Events\BasketDeletedEvent;
+use Vulgar\Stow\Events\BasketDeletingEvent;
+use Vulgar\Stow\Exceptions\UnstowableObjectException;
+use Vulgar\Stow\Interfaces\Stowable;
 
+/**
+ * Basket
+ *
+ * @property int $id
+ * @property string $instance
+ * @property string $slug
+ * @property array $options
+ * @property Collection::BasketItem $items
+ */
 class Basket extends Model
 {
     use SoftDeletes;
 
+    /**
+     * @var array<int, string>
+     */
     protected $fillable = ['instance'];
 
-    protected $casts = ['options'=>'array'];
+    /**
+     * @var array<string, string>
+     */
+    protected $casts = ['options' => 'array'];
 
     /**
      * The event map for the model.
      *
-     * @var array
+     * @var array<string, string>
      */
     protected $dispatchesEvents = [
         'created' => BasketCreatedEvent::class,
@@ -30,12 +48,12 @@ class Basket extends Model
         'deleting' => BasketDeletingEvent::class,
     ];
 
-    public function __construct($instance = "basket")
+    public function __construct(string $instance = 'basket')
     {
         $this->attributes['instance'] = $instance;
         $this->attributes['slug'] = Str::random(40);
         // change slug if exists
-        while (self::where('slug', $this->attributes['slug'])->count() > 0) {
+        while (static::where('slug', $this->attributes['slug'])->count() > 0) {
             $this->attributes['slug'] = Str::random(40);
         }
     }
@@ -44,37 +62,37 @@ class Basket extends Model
     *   TODO: Add Exceptions and make them reportable if necessary https://laravel.com/docs/9.x/errors#reporting-exceptions
     */
 
-
     /**
      * Items
-     * @return Relation Basket Item with this basket as their parent
+     *
+     * @return HasMany Basket Items with this basket as their parent
      */
-    public function items()
+    public function items(): HasMany
     {
         return $this->hasMany(BasketItem::class);
     }
 
     /**
      * Add to basket
-     * @param Stowable object
-     * @param int $qty Quantity of stowable
-     * @param array $options List of options that make this product unique
+     *
+     * @param  Stowable  $item  object
+     * @param  int  $qty  Quantity of stowable
+     * @param  array  $options  List of options that make this product unique
      * @return BasketItem Model that is created or found/modified
+     *
+     * @throws UnstowableObjectException
      */
-    public function add(Stowable $item, $qty = 1, array $options = [])
+    public function add(Stowable $item, int $qty = 1, array $options = []): BasketItem
     {
 
         $this->verifyStowability($item::class);
 
         // Add basket to DB if not added
-        if (!$this->getKey()) {
+        if (! $this->getKey()) {
             $this->push();
         }
 
-        $basketItem = $this->items()->where([
-            "stowable_type" => $item::class,
-            "stowable_id" => $item->getKey()
-        ])->first();
+        $basketItem = $this->items()->whereMorphedTo('stowable', $item)->first();
 
         if ($basketItem && $basketItem->options == $options) {
             $basketItem->quantity += $qty;
@@ -93,40 +111,48 @@ class Basket extends Model
 
     /**
      * Update item in basket
-     * @param int BasketItem object or id
-     * @param int $qty Quantity to set
-     * @param array $options List of options that make this product unique
-     * @return int Count of items updates
+     *
+     * @param  BasketItem|int  $basketItem  BasketItem object or id
+     * @param  int  $qty  Quantity to set
+     * @param  array  $options  List of options that make this product unique
+     * @return bool update successful
      */
-    public function change(BasketItem|int $basketItem, $qty = 1, array $options = [])
+    public function change(int|BasketItem $basketItem, int $qty = 1, array $options = []): bool
     {
+        /** @var BasketItem $basketItem */
         $basketItem = $basketItem instanceof BasketItem
             ? $basketItem
             : BasketItem::findOrFail($basketItem);
         $basketItem->quantity = $qty;
         $basketItem->options = $options;
+
         return $basketItem->update();
     }
 
     /**
      * Remove from basket
-     * @param $id ID of BasketItem
-     * @return int Count of items deleted
+     *
+     * @return bool deletion successful
+     *
+     * @throws ModelNotFoundException
      */
-    public function remove(BasketItem|int $basketItem)
+    public function remove(BasketItem|int $basketItem): bool
     {
-        return $basketItem instanceof BasketItem
+        return ($basketItem instanceof BasketItem)
             ? $basketItem->delete()
             : BasketItem::findOrFail($basketItem)->delete();
     }
 
     /**
      * Merge a basket with this basket
-     * @param Basket object to merge with this
+     *
+     * @param  Basket  $toMerge  object to merge with this
+     *
+     * @throws UnstowableObjectException
      */
-    public function merge(Basket $toMerge)
+    public function merge(Basket $toMerge): void
     {
-        if (!$toMerge->id == $this->id) {
+        if (! $toMerge->id == $this->id) {
             if ($toMerge->items()->count() > 0) {
                 $toMergeItems = $toMerge->items;
                 foreach ($toMergeItems as $item) {
@@ -139,32 +165,33 @@ class Basket extends Model
 
     /**
      * Clone a basket with a unique uri
+     *
      * @return Basket clone of this basket
      */
-    public function clone()
+    public function clone($toInstance = null): Basket
     {
-        $new = new Basket($this->instance);
+        $new = new Basket($toInstance ?? $this->instance);
         $new->push();
         $new->items()->sync($this->items);
+
         return $new;
     }
 
-
-
-
     /**
      * Verify the item type is within the allowed types for this instance
-     * @param string class name to check compatibility
-     * @return Boolean whether item is stowable with current config
+     *
+     * @param  string  $className  class name to check compatibility
+     * @return bool whether item is stowable with current config
+     *
+     * @throws UnstowableObjectException
      */
-
-    public function verifyStowability($className)
+    public function verifyStowability(string $className): bool
     {
         $config = config("basket.instances.$this->instance");
-        if (isset($config) && !in_array($className, $config)) {
+        if (isset($config) && ! in_array($className, $config)) {
             throw new UnstowableObjectException("$className not allowed in basket instance \"$this->instance\".");
         }
+
         return true;
     }
-
 }

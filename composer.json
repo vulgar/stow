@@ -1,21 +1,21 @@
 {
-    "name": "vulgar/laravel-basket",
+    "name": "vulgar/stow",
     "description": "This unofficial laravel package allows for the addition of any model to an instancable \"Cart\", \"Quote\" or other \"Basket\".",
     "type": "library",
     "license": "MIT",
     "autoload": {
         "psr-4": {
-            "Vulgar\\LaravelBasket\\": "src/"
+            "Vulgar\\Stow\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Vulgar\\LaravelBasket\\Tests\\": "tests/"
+            "Vulgar\\Stow\\Tests\\": "tests/"
         }
     },
     "authors": [
         {
-            "name": "Vulgar",
+            "name": "Vulgar <Matthew Newport>",
             "email": "admin@matthewnewport.com",
             "homepage": "https://www.matthewnewport.com",
             "role": "Developer"
@@ -24,13 +24,15 @@
     "extra": {
         "laravel": {
             "providers": [
-                "Vulgar\\LaravelBasket\\Providers\\BasketProvider"
+                "Vulgar\\Stow\\Providers\\StowProvider"
             ]
         }
     },
     "minimum-stability": "dev",
     "require-dev": {
-        "orchestra/testbench": "8.0.x-dev"
+        "orchestra/testbench": "8.x-dev",
+        "phpstan/phpstan": "1.11.x-dev",
+        "laravel/pint": "dev-main"
     },
     "scripts": {
         "post-autoload-dump": [

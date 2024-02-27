@@ -1,12 +1,21 @@
 <?php
 
-namespace Vulgar\LaravelBasket\Tests\Models;
+namespace Vulgar\Stow\Tests\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Vulgar\LaravelBasket\Interfaces\Stowable;
-use Vulgar\LaravelBasket\Traits\Basketable;
+use Vulgar\Stow\Interfaces\Stowable;
+use Vulgar\Stow\Traits\StowMethods;
 
-class StowableTest extends Model implements Stowable {
-    use Basketable;
-    public function getKey(){ return 1; }
+class StowableTest extends Model implements Stowable
+{
+    use StowMethods;
+
+    /**
+     * Return a basic key for the model.
+     * @return mixed
+     */
+    public function getKey(): mixed
+    {
+        return 1;
+    }
 }

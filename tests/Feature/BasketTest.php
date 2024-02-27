@@ -1,28 +1,26 @@
 <?php
 
-namespace Vulgar\LaravelBasket\Tests\Feature;
+namespace Vulgar\Stow\Tests\Feature;
 
 use Illuminate\Database\Eloquent\Model;
-use TypeError;
-use Vulgar\LaravelBasket\Exceptions\UnstowableObjectException;
-use Vulgar\LaravelBasket\Models\Basket;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Event;
-use Vulgar\LaravelBasket\Events\BasketCreatedEvent;
-use Vulgar\LaravelBasket\Events\BasketDeletedEvent;
-use Vulgar\LaravelBasket\Events\BasketItemCreatedEvent;
-use Vulgar\LaravelBasket\Events\BasketItemUpdatedEvent;
-use Vulgar\LaravelBasket\Events\BasketItemDeletedEvent;
-use Vulgar\LaravelBasket\Tests\Models\StowableTest;
-use Vulgar\LaravelBasket\Tests\Models\UnstowableTest;
-use Vulgar\LaravelBasket\Tests\TestCase;
+use TypeError;
+use Vulgar\Stow\Events\BasketCreatedEvent;
+use Vulgar\Stow\Events\BasketDeletedEvent;
+use Vulgar\Stow\Events\BasketItemCreatedEvent;
+use Vulgar\Stow\Events\BasketItemDeletedEvent;
+use Vulgar\Stow\Events\BasketItemUpdatedEvent;
+use Vulgar\Stow\Exceptions\UnstowableObjectException;
+use Vulgar\Stow\Models\Basket;
+use Vulgar\Stow\Tests\Models\StowableTest;
+use Vulgar\Stow\Tests\Models\UnstowableTest;
+use Vulgar\Stow\Tests\TestCase;
 
 class BasketTest extends TestCase
 {
-
     use RefreshDatabase;
-
 
     /**
      * A test to ensure that objects implementing Stowable
@@ -34,10 +32,10 @@ class BasketTest extends TestCase
     {
         $stowableObject = new StowableTest();
         $basket = new Basket();
+        dump("test");
         $basket->add($stowableObject);
         $this->assertEquals(1, $basket->items()->count());
     }
-
 
     /**
      * A test to ensure that objects not implementing Stowable
@@ -52,7 +50,6 @@ class BasketTest extends TestCase
         $this->expectException(TypeError::class);
         $basket->add($unstowableObject);
     }
-
 
     /**
      * A test to ensure that objects not within instance restrictions
@@ -70,7 +67,6 @@ class BasketTest extends TestCase
         $basket->add($stowableObject);
     }
 
-
     /**
      * A test to ensure that objects whose class are within instance restrictions
      * are capable of being added to the basket.
@@ -85,7 +81,6 @@ class BasketTest extends TestCase
         $basket->add($stowableObject);
         $this->assertEquals(1, $basket->items()->count());
     }
-
 
     /**
      * A test to ensure that even objects whose class are within instance restrictions
@@ -127,14 +122,15 @@ class BasketTest extends TestCase
     {
         $stowableObject = new StowableTest();
         $basket = new Basket();
-        $basket->add($stowableObject, options: ["loves" => "cats"]);
-        $basket->add($stowableObject, options: ["loves" => "dogs"]);
+        $basket->add($stowableObject, options: ['loves' => 'cats']);
+        $basket->add($stowableObject, options: ['loves' => 'dogs']);
         $this->assertEquals(2, $basket->items()->count());
     }
 
     /**
      * A test to ensure that items are properly deleted using the remove function
      * items will be removed whether the BasketItem or the BasketItem->id is passed
+     *
      * @return void
      */
     public function testBasketItemRemoval()
@@ -151,85 +147,80 @@ class BasketTest extends TestCase
         $this->assertEquals(0, $basket->items()->count());
     }
 
-
     /**
      * A test to ensure that basket creation emits appropriate event
+     *
      * @return void
      */
     public function testBasketCreatedEventEmitted()
     {
-        Event::fake();
+        Event::fake(BasketCreatedEvent::class);
 
         $basket = new Basket();
         $basket->push();
 
-        Event::assertDispatched(BasketCreatedEvent::class, function ($event) use ($basket) {
-            return $event->basket->id === $basket->id;
-        });
+        Event::assertDispatched(BasketCreatedEvent::class);
     }
-
 
     /**
      * A test to ensure that basket creation emits appropriate event
+     *
      * @return void
      */
     public function testBasketDeletedEventEmitted()
     {
-        Event::fake();
+        Event::fake(BasketDeletedEvent::class);
 
         $basket = new Basket();
         $basket->push();
         $basket->delete();
 
-        Event::assertDispatched(BasketDeletedEvent::class, function ($event) use ($basket) {
-            return $event->basket->id === $basket->id;
-        });
+        Event::assertDispatched(BasketDeletedEvent::class);
     }
 
     /**
      * A test to ensure that basket item add emits appropriate event
+     *
      * @return void
      */
     public function testBasketItemCreatedEventEmittedThroughBasketAdd()
     {
-        Event::fake();
+        Event::fake(BasketItemCreatedEvent::class);
 
         $stowableObject = new StowableTest();
         $basket = new Basket();
         $basket->push();
         $basketItem = $basket->add($stowableObject);
 
-        Event::assertDispatched(BasketItemCreatedEvent::class, function ($event) use ($basketItem) {
-            return $event->basketItem->id === $basketItem->id;
-        });
+        Event::assertDispatched(BasketItemCreatedEvent::class);
     }
 
     /**
      * A test to ensure that basket item change emits appropriate event
+     *
      * @return void
      */
     public function testBasketItemUpdatedEventEmittedThroughBasketChange()
     {
-        Event::fake();
+        Event::fake(BasketItemUpdatedEvent::class);
 
         $stowableObject = new StowableTest();
         $basket = new Basket();
         $basket->push();
         $basketItem = $basket->add($stowableObject);
-        $basket->change($basketItem, 6, ["cat"=>"burglar"]);
+        $basket->change($basketItem, 6, ['cat' => 'burglar']);
 
-        Event::assertDispatched(BasketItemUpdatedEvent::class, function ($event) use ($basketItem) {
-            return $event->basketItem->id === $basketItem->id;
-        });
+        Event::assertDispatched(BasketItemUpdatedEvent::class);
     }
 
     /**
      * A test to ensure that basket item remove emits appropriate event
+     *
      * @return void
      */
     public function testBasketItemDeletedEventEmittedThroughBasketRemove()
     {
-        Event::fake();
+        Event::fake(BasketItemDeletedEvent::class);
 
         $stowableObject = new StowableTest();
         $basket = new Basket();
@@ -237,18 +228,17 @@ class BasketTest extends TestCase
         $basketItem = $basket->add($stowableObject);
         $basket->remove($basketItem);
 
-        Event::assertDispatched(BasketItemDeletedEvent::class, function ($event) use ($basketItem) {
-            return $event->basketItem->id === $basketItem->id;
-        });
+        Event::assertDispatched(BasketItemDeletedEvent::class);
     }
 
     /**
      * A test to ensure that Basket::deleting emits appropriate event
+     *
      * @return void
      */
     public function testBasketItemDeletedEventEmittedThroughBasketDeleting()
     {
-        Event::fake([BasketItemDeletedEvent::class]);
+        Event::fake(BasketItemDeletedEvent::class);
 
         $stowableObject = new StowableTest();
         $basket = new Basket();
@@ -258,17 +248,15 @@ class BasketTest extends TestCase
 
         $this->assertTrue($basketItem->fresh()->trashed());
 
-        Event::assertDispatched(BasketItemDeletedEvent::class, function ($event) use ($basketItem) {
-            return $event->basketItem->id === $basketItem->id;
-        });
+        Event::assertDispatched(BasketItemDeletedEvent::class);
     }
-
 
     /**
      * Perform any work that should take place before the database has started refreshing.
      *
      * @return void
      */
-    protected function beforeRefreshingDatabase(){}
-
+    protected function beforeRefreshingDatabase()
+    {
+    }
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace Vulgar\LaravelBasket\Exceptions;
+namespace Vulgar\Stow\Exceptions;
 
 use Exception;
 

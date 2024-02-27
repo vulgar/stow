@@ -1,10 +1,8 @@
 <?php
 
-namespace Vulgar\LaravelBasket\Tests;
+namespace Vulgar\Stow\Tests;
 
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
-use Vulgar\LaravelBasket\Providers\BasketProvider;
+use Vulgar\Stow\Providers\StowProvider;
 
 class TestCase extends \Orchestra\Testbench\TestCase
 {
@@ -19,7 +17,7 @@ class TestCase extends \Orchestra\Testbench\TestCase
     protected function getPackageProviders($app)
     {
         return [
-            BasketProvider::class,
+            StowProvider::class,
         ];
     }
 
@@ -28,12 +26,9 @@ class TestCase extends \Orchestra\Testbench\TestCase
         // Setup default database to use sqlite :memory:
         $app['config']->set('database.default', 'testbench');
         $app['config']->set('database.connections.testbench', [
-            'driver'   => 'sqlite',
+            'driver' => 'sqlite',
             'database' => ':memory:',
-            'prefix'   => '',
+            'prefix' => '',
         ]);
     }
-
-
-
 }

@@ -1,21 +1,19 @@
 <?php
 
-namespace Vulgar\LaravelBasket\Events;
+namespace Vulgar\Stow\Events;
 
-use Illuminate\Queue\SerializesModels;
 use Illuminate\Foundation\Events\Dispatchable;
-use Vulgar\LaravelBasket\Models\Basket;
+use Illuminate\Queue\SerializesModels;
+use Vulgar\Stow\Models\Basket;
 
 class BasketDeletingEvent
 {
-
     use Dispatchable, SerializesModels;
 
-    public $basket;
+    public Basket $basket;
 
     public function __construct(Basket $basket)
     {
         $this->basket = $basket;
     }
-
 }

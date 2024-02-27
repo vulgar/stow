@@ -1,8 +1,12 @@
 <?php
 
-namespace Vulgar\LaravelBasket\Interfaces;
+namespace Vulgar\Stow\Interfaces;
 
-interface Stowable{
-    public function basketItem();
-    public function getKey();
+use Illuminate\Database\Eloquent\Relations\MorphTo;
+
+interface Stowable
+{
+    public function basketItems(): MorphTo;
+
+    public function getKey(): mixed;
 }

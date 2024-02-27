@@ -1,10 +1,10 @@
 <?php
 
-namespace Vulgar\LaravelBasket\Providers;
+namespace Vulgar\Stow\Providers;
 
 use Illuminate\Support\ServiceProvider;
 
-class BasketProvider extends ServiceProvider
+class StowProvider extends ServiceProvider
 {
     /**
      * Register any application services.
@@ -13,10 +13,10 @@ class BasketProvider extends ServiceProvider
      */
     public function register()
     {
-       // Publish the config file to the installer's config directory
+        // Publish the config file to the installer's config directory
         $this->publishes([
-            __DIR__ . '/../config/basket.php' => config_path('basket.php'),
-        ]);
+            __DIR__.'/../config/stow.php' => config_path('stow.php'),
+        ], 'stow-config');
 
         // Register the migrations for next `php artisan migrate` execution
         $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
