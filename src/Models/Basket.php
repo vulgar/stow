@@ -22,7 +22,7 @@ use Vulgar\Stow\Interfaces\Stowable;
  * @property string $instance
  * @property string $slug
  * @property array $options
- * @property Collection::BasketItem $items
+ * @property Collection::BasketItem $basketItems
  */
 class Basket extends Model
 {
@@ -97,15 +97,14 @@ class Basket extends Model
      */
     public function add(Stowable $item, int $qty = 1, array $options = []): BasketItem
     {
-
         $this->verifyStowability($item::class);
 
         // Add basket to DB if not added
-        if (! $this->getKey()) {
+        if (!$this->getKey()) {
             $this->push();
         }
 
-        $basketItem = $this->items()->whereMorphedTo('stowable', $item)->first();
+        $basketItem = $this->basketItems()->whereMorphedTo('stowable', $item)->first();
 
         if ($basketItem && $basketItem->options == $options) {
             $basketItem->quantity += $qty;
@@ -116,7 +115,7 @@ class Basket extends Model
             $basketItem->quantity = $qty;
             $basketItem->stowable_type = $item::class;
             $basketItem->stowable_id = $item->getKey();
-            $this->items()->save($basketItem);
+            $this->basketItems()->save($basketItem);
         }
 
         return $basketItem->fresh();
@@ -165,8 +164,8 @@ class Basket extends Model
      */
     public function merge(Basket $toMerge): void
     {
-        if (! $toMerge->id == $this->id) {
-            if ($toMerge->items()->count() > 0) {
+        if (!$toMerge->id == $this->id) {
+            if ($toMerge->basketItems()->count() > 0) {
                 $toMergeItems = $toMerge->items;
                 foreach ($toMergeItems as $item) {
                     $this->add($item->stowable, $item->quantity, $item->options);
@@ -185,7 +184,7 @@ class Basket extends Model
     {
         $new = new Basket($toInstance ?? $this->instance);
         $new->push();
-        $new->items()->sync($this->items);
+        $new->basketItems()->sync($this->basketItems);
 
         return $new;
     }
@@ -201,7 +200,7 @@ class Basket extends Model
     public function verifyStowability(string $className): bool
     {
         $config = config("basket.instances.$this->instance");
-        if (isset($config) && ! in_array($className, $config)) {
+        if (isset($config) && !in_array($className, $config)) {
             throw new UnstowableObjectException("$className not allowed in basket instance \"$this->instance\".");
         }
 

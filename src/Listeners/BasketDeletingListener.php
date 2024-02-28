@@ -8,7 +8,7 @@ class BasketDeletingListener
 {
     public function handle(BasketDeletingEvent $event): void
     {
-        $event->basket->items->each(function ($item) {
+        $event->basket->basketItems->each(function ($item) {
             $item->delete();
         });
     }
